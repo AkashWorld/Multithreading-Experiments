@@ -14,24 +14,26 @@ struct arg_struct {
 
 int main(int argc, char * argv[]){
     if(argc < 3){
-        cout << "Correct usage: brute_forcer <threads> <md5 hash>\n";
+        cout << "Correct usage: brute_forcer <md5 hash> <threads>\n";
         exit(1);
-    } else if(strlen(argv[2]) != 32 || atoi(argv[1]) < 0){
+    } else if(strlen(argv[1]) != 32 || atoi(argv[1]) < 0){
         cout << "MD5 not correct length or threads < 0\n";
         exit(1);
     }
     // const char md5[]= "0fdc3cbc9a749efcaf083440a794fae4"; 
-    char * md5 = argv[2];
+    char * md5 = argv[1];
     str_to_md5(md5);
     size_t length = 8;
     int num_chars = 94;
     char * str = (char * )calloc(sizeof(char),num_chars);
     gen_arr(str);
-    int threads = atoi(argv[1]);
+    int threads = atoi(argv[2]);
     pthread_t tid[threads];
     int task_size = num_chars / threads;
     cout << "Beginning password cracker with " << threads << " threads" << endl;
     cout << "Using MD5 hash " << md5 << endl;
+    long elapsed = 0;
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     for(int i = 0;i < threads;i++){
     	struct arg_struct * args = (struct arg_struct *)calloc(1,sizeof(arg_struct));
 	    args->str = str;
@@ -45,6 +47,10 @@ int main(int argc, char * argv[]){
     for(int i = 0;i < threads;i++){
      pthread_join( tid[i], NULL);
     }
+    std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    cout << "Password found with " <<  threads << " threads in "
+    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
     return 0;
 
 }
