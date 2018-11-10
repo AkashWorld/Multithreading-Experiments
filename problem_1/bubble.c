@@ -4,6 +4,8 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include <assert.h>
+#include <sys/time.h>
+#include <math.h>
 
 void print(int arr[], int size);
 void sort(int arr[], int size);
@@ -16,13 +18,25 @@ pthread_mutex_t * mutexes;
 
 int* Array;
 int* Arr2;
-int size = 12;
+long size;
 
-int main(void) {
+int main(int argc, char* argv[]) {
 
+size = 23;
+num_threads = 4;
 
-clock_t start, stop;
+/*
+if(argc<=1 || argc>3){
+	printf("please enter the size of the array follow by the number of threads\n");
+	return 0;
 
+}
+
+int size = atoi(argv[1]);
+int num_threads = atoi(argv[2]);
+*/
+
+struct timeval stop, start;
 
 
 Array = (int*) malloc(size*sizeof(int));
@@ -34,26 +48,6 @@ srand(time(NULL));
 	for(i=0; i < size; i++){
 		Array[i] = rand() % 100;
 	}
-
-
-   double t;
-
-  assert((start=clock())!=-1);
-  	sort(Array,size);
-   stop = clock();
-   t = (double) (stop-start)/(CLOCKS_PER_SEC);
-
-
-
-   printf("Sequential Time: %f\n", t/100);
-
-	//print(Array,size);
-
-	//printf("\n");
-   //thread imple
-
-
-
 Arr2 = (int*) malloc(size*sizeof(int));
 
 	i = 0;
@@ -62,8 +56,27 @@ Arr2 = (int*) malloc(size*sizeof(int));
 
 	}
 
+gettimeofday(&start, NULL);
+sort(Array,size);
+gettimeofday(&stop, NULL);
 
-	num_threads = 4;
+long x =stop.tv_usec - start.tv_usec;
+
+printf("sequential time: %lu :secs %lu :ms\n",stop.tv_sec - start.tv_sec, (long) x/1000);
+
+
+
+	print(Array,size);
+
+	printf("\n");
+   //thread imple
+
+
+
+
+
+
+
 
 	   tids = malloc(num_threads *sizeof(pthread_t));
 	   mutexes = malloc(num_threads *sizeof(pthread_mutex_t));
@@ -75,8 +88,8 @@ Arr2 = (int*) malloc(size*sizeof(int));
 
 
 
-	   assert((start=clock())!=-1);
 
+gettimeofday(&start, NULL);
 	       for(i=0;i<num_threads;i++){
 
 	           pthread_create(&tids[i],NULL,sort_pthread,(void*)0);
@@ -86,16 +99,17 @@ Arr2 = (int*) malloc(size*sizeof(int));
 	       }
 
 
-		    stop = clock();
-		    t = (double) (stop-start)/(CLOCKS_PER_SEC);
 
 
+gettimeofday(&stop, NULL);
 
-		    printf("Parellel Time: %f\n", t/100);
+x =stop.tv_usec - start.tv_usec;
 
-	  // 	print(Arr2,size);
+printf("Parellel time: %lu :secs %lu :ms\n",stop.tv_sec - start.tv_sec, (long) x/1000);
 
-	 //  	printf("\n");
+	  	print(Arr2,size);
+
+	   	printf("\n");
 
 	       for( i = 0; i < size; i++){
 	    	   if(Arr2[i] != Array[i]){
@@ -109,41 +123,65 @@ return 0;
 
 
 void* sort_pthread(void *param) {
-	 int i=0,k=0, tmp=0, start=0, end=0;
 
 
-	  int  per_thread = size/num_threads;
 
-	  for(i = 0; i<per_thread; i++){
-		  for(k=0;k<num_threads;k++){
-			  start = per_thread * k;
-			  end = start + per_thread;
+	int  per_thread = size/num_threads;
+	int start,end;
 
-			  if(k == (num_threads-1) ){
-				  end = size;
-			  }
-			  if(k==0) pthread_mutex_lock(&mutexes[0]);
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	int tmp = 0;
+	    for(j = 0; j<floor(per_thread); j++){
+	        for(k=0;k<num_threads;k++){
+	        		if(k==0) pthread_mutex_lock(&mutexes[0]);
+	            start = per_thread *k;
+	            end = start + per_thread;
+	            if(k==num_threads-1){
+	            	end = size;
+	            }
+
 
 	            for(i=start;i<end-1;i++){
-	                if(Arr2[i]>Arr2[i+1]){
-	                    tmp=Arr2[i];
-	                    Arr2[i]=Arr2[i+1];
-	                    Arr2[i+1]=tmp;
-	                }
-	            }
 
+
+
+	                        if(Arr2[i]>Arr2[i+1]){
+	                            tmp=Arr2[i];
+	                            Arr2[i]=Arr2[i+1];
+	                            Arr2[i+1]=tmp;
+
+		//	printf("%d %d---\n",start,end);
+	                        }
+
+
+	            }
 	            if(k==num_threads-1){
 
-	                break;
+	            }else{
+	                pthread_mutex_lock(&mutexes[k+1]);
+	     	//	printf("%d %d-----------last\n",i,k);
+	                     if(Arr2[i]>Arr2[i+1]){
+	                         tmp=Arr2[i];
+	                         Arr2[i]=Arr2[i+1];
+	                         Arr2[i+1]=tmp;
+	                     }
+	                     if(k == 0){
+	     	               if(Arr2[i-1]>Arr2[i]){
+	                         tmp=Arr2[i-1];
+	                         Arr2[i-1]=Arr2[i];
+	                         Arr2[i]=tmp;
+	     	               }
+	                     }
 	            }
+	 	//printf("lock %d\n",k+1);
 
-	            pthread_mutex_unlock(&mutexes[0]);
-
-		  }
-	  }
-
-
-	return NULL;
+		//printf("unlock %d\n",k);
+	            pthread_mutex_unlock(&mutexes[k]);
+	        }
+	    }
+	    return NULL;
 }
 
 
