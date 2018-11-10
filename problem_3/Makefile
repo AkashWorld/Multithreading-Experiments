@@ -1,15 +1,11 @@
 CC = g++
-CFLAGS = -c -Wall -g
-LFLAGS = -lm
+CFLAGS = -Wall -g 
 DFLAGS = -lcrypto -pthread
 
 all: brute_force
 
-brute_force: brute_force.o
-	$(CC) $(DFLAGS) brute_force.o -o brute_forcer $(LFLAGS)
-
-brute_force.o: brute_force.cpp brute_force.h
-	$(CC) $(CFLAGS) brute_force.cpp
+brute_force: brute_force.cpp
+	$(CC) $(CFLAGS) $(DFLAGS) brute_force.cpp -o brute_forcer
 
 clean:
 	rm *.o brute_forcer

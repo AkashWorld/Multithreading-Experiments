@@ -32,7 +32,6 @@ int main(int argc, char * argv[]){
     int task_size = num_chars / threads;
     cout << "Beginning password cracker with " << threads << " threads" << endl;
     cout << "Using MD5 hash " << md5 << endl;
-    long elapsed = 0;
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     for(int i = 0;i < threads;i++){
     	struct arg_struct * args = (struct arg_struct *)calloc(1,sizeof(arg_struct));
@@ -48,7 +47,6 @@ int main(int argc, char * argv[]){
      pthread_join( tid[i], NULL);
     }
     std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     cout << "Password found with " <<  threads << " threads in "
     << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
     return 0;
