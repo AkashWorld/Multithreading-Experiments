@@ -16,7 +16,7 @@ pthread_mutex_t * mutexes;
 
 int* Array;
 int* Arr2;
-long size = 10000000;
+int size = 12;
 
 int main(void) {
 
@@ -45,7 +45,7 @@ srand(time(NULL));
 
 
 
-   printf("Sequential Time: %g\n", t/100);
+   printf("Sequential Time: %f\n", t/100);
 
 	//print(Array,size);
 
@@ -75,6 +75,7 @@ Arr2 = (int*) malloc(size*sizeof(int));
 
 
 
+	   assert((start=clock())!=-1);
 
 	       for(i=0;i<num_threads;i++){
 
@@ -83,6 +84,14 @@ Arr2 = (int*) malloc(size*sizeof(int));
 	       for(i=0; i<num_threads;i++){
 	    	   pthread_join(tids[i],NULL);
 	       }
+
+
+		    stop = clock();
+		    t = (double) (stop-start)/(CLOCKS_PER_SEC);
+
+
+
+		    printf("Parellel Time: %f\n", t/100);
 
 	  // 	print(Arr2,size);
 
@@ -124,19 +133,11 @@ void* sort_pthread(void *param) {
 	            }
 
 	            if(k==num_threads-1){
-	                pthread_mutex_unlock(&mutexes[k]);
+
 	                break;
 	            }
-/*
-	            pthread_mutex_lock(&mutexes[k+1]);
-                if(Arr2[i]>Arr2[i+1]){
-                    tmp=Arr2[i];
-                    Arr2[i]=Arr2[i+1];
-                    Arr2[i+1]=tmp;
-                }
 
-                */
-	            pthread_mutex_unlock(&mutexes[k]);
+	            pthread_mutex_unlock(&mutexes[0]);
 
 		  }
 	  }
