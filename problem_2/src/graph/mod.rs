@@ -76,7 +76,6 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
     println!("{}", prompt);
     let mut graph_nodes: Vec<Node> = Vec::with_capacity(graph_size);
     let mut graph_nodes_arc = Arc::new(RwLock::new(graph_nodes));
-    let mut edge_uniqueness = Arc::new(RwLock::new(HashSet::<u32>::new()));
     let cond_var = Arc::new((Mutex::new(0), Condvar::new()));
     let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::with_capacity(thread_count);
     let partition = graph_size / thread_count;
