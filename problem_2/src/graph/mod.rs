@@ -6,7 +6,7 @@ Author: Khalid Akash, 2018
 extern crate colored;
 extern crate rand;
 use self::rand::Rng;
-use colored::*;
+use self::colored::*;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::ErrorKind;
@@ -82,7 +82,6 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
     for thread_idx in 0..thread_count {
         let mut graph_clone = Arc::clone(&graph_nodes_arc);
         let mut cond_var_clone = Arc::clone(&cond_var);
-        let mut edge_set_clone = Arc::clone(&edge_uniqueness);
         let handle = thread::spawn(move || {
             let mut thread_local_graph: Vec<Node> = Vec::with_capacity(partition);
             for i in 0..partition {
