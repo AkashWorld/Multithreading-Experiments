@@ -9,6 +9,7 @@ Author: Khalid Akash, 2018
 use std::collections::HashMap;
 use std::vec::Vec;
 
+#[derive(Debug)]
 pub struct MinHeap {
     tree: Vec<(u32, u32)>,             /* node, edge */
     lookup_table: HashMap<u32, usize>, /* node, index in heap*/
@@ -140,7 +141,7 @@ impl MinHeap {
             self.heapify(MinHeap::get_right_child_idx(max, index));
         }
     }
-    pub fn modify(&mut self, node: u32, new_edge: u32) -> bool {
+    pub fn decrease_key(&mut self, node: u32, new_edge: u32) -> bool {
         let mut index: usize = 0;
         if let Some(val) = self.lookup_table.get(&node) {
             index = *val as usize;
@@ -172,7 +173,7 @@ impl MinHeap {
         if !self.tree.is_empty() {
             match self.lookup_table.get_mut(&self.tree[0].0) {
                 Some(val) => *val = 0,
-                None => panic!("Could not find node to update in look up table!"),
+                None => return None,
             };
             self.heapify(0);
         }
@@ -251,14 +252,14 @@ mod tests {
         test_heap.push((2, 20));
         assert_eq!(test_heap.tree[0].0, 1);
         assert_eq!(test_heap.tree[1].0, 2);
-        test_heap.modify(1, 21);
+        test_heap.decrease_key(1, 21);
         assert!(test_heap.is_heap_valid(0));
         assert_eq!(test_heap.tree[0].0, 2);
         assert_eq!(test_heap.tree[1].0, 1);
         test_heap.push((3, 25));
         test_heap.push((4, 24));
         test_heap.push((5, 5000));
-        test_heap.modify(4, 5);
+        test_heap.decrease_key(4, 5);
         assert!(test_heap.is_heap_valid(0));
         assert_eq!(test_heap.tree[0].0, 4);
     }
