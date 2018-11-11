@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <sys/time.h>
 #include <math.h>
+#include <string.h>
 
 void print(int arr[], int size);
 void sort(int arr[], int size);
@@ -21,19 +22,21 @@ long size;
 
 int main(int argc, char* argv[]) {
 
-size = 200000;
+size = 50000;
 num_threads = 8;
 
-/*
-if(argc<=1 || argc>3){
-	printf("please enter the size of the array follow by the number of threads\n");
+
+
+if(argc<=1 || argc>4){
+
+printf("Format run, size of array, number of threads, optional s flag to include sequential \n");
 	return 0;
-
 }
+size = atoi(argv[1]);
+num_threads = atoi(argv[2]);
 
-int size = atoi(argv[1]);
-int num_threads = atoi(argv[2]);
-*/
+//printf("%ld\n",size);
+
 
 struct timeval stop, start;
 
@@ -57,21 +60,32 @@ Arr2 = (int*) malloc(size*sizeof(int));
 
 //long long x;
 
-/*
-gettimeofday(&start, NULL);
-sort(Array,size);
-gettimeofday(&stop, NULL);
+// seq ver
+
+if( argc == 4){
+
+	if ( ! strcmp(argv[3], "-s")) {
+		gettimeofday(&start, NULL);
+		sort(Array,size);
+	gettimeofday(&stop, NULL);
+	
 
 // x =stop.tv_usec - start.tv_usec;
 
-printf("sequential time: %lu :secs %lu :ms\n",stop.tv_sec - start.tv_sec, (long) (stop.tv_usec - start.tv_usec)/1000);
+		printf("sequential time: %lu :secs %lu :ms\n",stop.tv_sec - start.tv_sec, (long) (stop.tv_usec - start.tv_usec)/1000);
 
-*/
+	}
+}
+
+
+
+
+
 
 	//print(Array,size);
 
 	//printf("\n");
-   //thread imple
+   //thread implementation
 
 
 
