@@ -57,17 +57,6 @@ impl Node {
 }
 
 pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<Node>> {
-    if graph_size % thread_count != 0 {
-        let warn_1 = "WARNING! Graph size must be a multiple of the requested thread count."
-            .red()
-            .bold();
-        let warn_2 = "WARNING! Generating graph slowly with 1 thread."
-            .red()
-            .bold();
-        eprintln!("{}", warn_1);
-        eprintln!("{}", warn_2);
-        thread_count = 1;
-    }
     let prompt = format!(
         "========Generating graph of size {} with {} threads========",
         graph_size, thread_count
@@ -78,7 +67,12 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
     let graph_nodes_arc = Arc::new(RwLock::new(graph_nodes));
     let cond_var = Arc::new((Mutex::new(0), Condvar::new()));
     let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::with_capacity(thread_count);
-    let partition = graph_size / thread_count;
+    let partition = if graph_size/thread_count > 0 {
+        (graph_size + (thread_count - 1)) / thread_count
+    } else {
+        thread_count = 1;
+        graph_size
+    };
     for thread_idx in 0..thread_count {
         let mut graph_clone = Arc::clone(&graph_nodes_arc);
         let mut cond_var_clone = Arc::clone(&cond_var);
@@ -155,6 +149,10 @@ mod tests {
     #[test]
     fn verify_graph_test() {
         let mut test_graph = generate_graph(2000, 4).unwrap();
+        for (i, node) in test_graph.iter().enumerate() {
+            assert_eq!(i as u32, node.node_id);
+        }
+        let mut test_graph = generate_graph(2000, 3).unwrap();
         for (i, node) in test_graph.iter().enumerate() {
             assert_eq!(i as u32, node.node_id);
         }

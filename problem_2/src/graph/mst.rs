@@ -289,10 +289,9 @@ mod tests {
     #[test]
     fn sequential_mst() {
         let _graph_nodes = graph_1_generator();
-        print_graph(&_graph_nodes);
         let rc_graph_nodes = Rc::new(_graph_nodes);
         let _mst = compute_sequential_mst(rc_graph_nodes);
-        print_graph(&_mst);
+        println!("{:#?}", _mst);
     }
     #[test]
     fn parallel_mst() {
