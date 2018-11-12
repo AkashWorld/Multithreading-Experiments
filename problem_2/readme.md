@@ -1,10 +1,6 @@
 # Parallel Minimum Spanning Tree
 
-<<<<<<< HEAD
 Benchmarks of a minimum spanning tree algorithm (Prims). The implementation is done in the Rust Programming Language. The graph that the algorithm works on is implemented as an adjacency list. Due to the limited implementation of a priority queue in the standard rust library, a custom minimum heap was implemented to allow for quick lookup and heapify operations. The parallelization of the algorithm is done at the inner for-loop (neighbor querying). The computation with the parallel algorithm is not CPU-bound, rather is is contention bound. Further explanation, analysis, and restrictions are explained in the [writeup.pdf](./writeup.pdf).
-=======
-Benchmarks of a minimum spanning tree algorithm (Prims). The implementation is done in the Rust Programming Language. The graph that the algorithm works on is implemented as an adjacency list. Due to the limited implementation of a pariority queue in the standard rust library, a custom minimum heap was implemented to allow for quick lookup and heapify operations. The parallelization of the algorithm is done at the inner for-loop (neighbor querying). The computation with the parallel algorithm is not CPU-bound, rather is is contention bound. Further explanation, analysis, and restrictions are explained in the problem [WriteUp.pdf](./writeup.pdf).
->>>>>>> 1822e8690b2067f65259234fe295d4a3e58c45f0
 
 ### Prerequisites
 
@@ -19,7 +15,7 @@ cargo run
 ```
 By default, the above command generates the test graphs with 4 threads. This can be customized to run more threads than normal with the following command.
 ```
-cargo run 8 #Generate graph with 8 threads
+cargo run 8          #Generate graph with 8 threads
 ```
 **For the purposes of the benchmarks, optimization of level 0 is required. This is further explained in the write up.**
 
