@@ -79,6 +79,9 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
         let handle = thread::spawn(move || {
             let mut thread_local_graph: Vec<Node> = Vec::with_capacity(partition);
             for i in 0..partition {
+                if thread_idx*partition + i >= graph_size {
+                    break;
+                }
                 let _numb_of_neighbors: u32 = rand::thread_rng().gen_range(1, graph_size as u32);
                 let mut connected_neighbors: HashSet<u32> = HashSet::new();
                 let mut _new_node: Node = Node {
@@ -149,10 +152,17 @@ mod tests {
     #[test]
     fn verify_graph_test() {
         let mut test_graph = generate_graph(2000, 4).unwrap();
+        assert_eq!(test_graph.len(), 2000);
+        for (i, node) in test_graph.iter().enumerate() {
+            assert_eq!(i as u32, node.node_id);
+        }
+        let mut test_graph = generate_graph(2000, 7).unwrap();
+        assert_eq!(test_graph.len(), 2000);
         for (i, node) in test_graph.iter().enumerate() {
             assert_eq!(i as u32, node.node_id);
         }
         let mut test_graph = generate_graph(2000, 3).unwrap();
+        assert_eq!(test_graph.len(), 2000);
         for (i, node) in test_graph.iter().enumerate() {
             assert_eq!(i as u32, node.node_id);
         }
