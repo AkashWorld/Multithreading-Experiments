@@ -294,11 +294,6 @@ mod tests {
         let _mst = compute_sequential_mst(rc_graph_nodes);
         print_graph(&_mst);
     }
-
-    #[allow(dead_code)]
-    fn print_graph(_graph_nodes: &Vec<Node>) {
-        println!("{:#?}", _graph_nodes);
-    }
     #[test]
     fn parallel_mst() {
         let _graph_nodes = graph_1_generator();

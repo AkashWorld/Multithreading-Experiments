@@ -18,12 +18,17 @@ fn profile_sequential_mst(graph_nodes: Rc<Vec<graph::Node>>) -> Duration {
     let start = PreciseTime::now();
     let _mst = graph::mst::compute_sequential_mst(cloned_reference_graph_nodes);
     let end = PreciseTime::now();
+    let mut edge_count: usize = 0;
+    for elem in graph_nodes.iter() {
+        edge_count = edge_count + elem.neighbors.len();
+    }
     let operation_type = "[Sequential]".yellow().bold();
     println!(
-        "{} MST of {} nodes took {} {}",
+        "{} MST of {} nodes and {} edges took {} {}",
         operation_type,
         graph_nodes.len(),
-        format!("{}",start.to(end).num_milliseconds()).green(),
+        edge_count,
+        format!("{}", start.to(end).num_milliseconds()).green(),
         "ms".green()
     );
     start.to(end)
@@ -34,12 +39,17 @@ fn profile_parallel_mst(graph_nodes: Arc<Vec<graph::Node>>, thread_count: usize)
     let start = PreciseTime::now();
     let _mst = graph::mst::compute_parallel_mst(cloned_reference_graph_nodes, thread_count);
     let end = PreciseTime::now();
+    let mut edge_count = 0;
+    for elem in graph_nodes.iter() {
+        edge_count += elem.neighbors.len();
+    }
     let operation_type = format!("[{} Thread(s)]", thread_count).yellow().bold();
     println!(
-        "{} Parallel MST of {} nodes took {} {}",
+        "{} Parallel MST of {} nodes and {} edges took {} {}",
         operation_type,
         graph_nodes.len(),
-        format!("{}",start.to(end).num_milliseconds()).green(),
+        edge_count,
+        format!("{}", start.to(end).num_milliseconds()).green(),
         "ms".green()
     );
     start.to(end)

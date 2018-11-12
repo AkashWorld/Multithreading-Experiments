@@ -5,8 +5,8 @@ Author: Khalid Akash, 2018
 */
 extern crate colored;
 extern crate rand;
-use self::rand::Rng;
 use self::colored::*;
+use self::rand::Rng;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::ErrorKind;
@@ -74,8 +74,8 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
     ).purple()
     .bold();
     println!("{}", prompt);
-    let mut graph_nodes: Vec<Node> = Vec::with_capacity(graph_size);
-    let mut graph_nodes_arc = Arc::new(RwLock::new(graph_nodes));
+    let graph_nodes: Vec<Node> = Vec::with_capacity(graph_size);
+    let graph_nodes_arc = Arc::new(RwLock::new(graph_nodes));
     let cond_var = Arc::new((Mutex::new(0), Condvar::new()));
     let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::with_capacity(thread_count);
     let partition = graph_size / thread_count;
@@ -125,11 +125,6 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
             .into_inner()
             .unwrap(),
     )
-}
-
-#[allow(dead_code)]
-pub fn print_graph(_graph_nodes: &Vec<Node>) {
-    println!("{:#?}", _graph_nodes);
 }
 
 pub fn output_graph_to_file(_graph_nodes: &Vec<Node>, filename: &str) {
