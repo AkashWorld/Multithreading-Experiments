@@ -5,12 +5,15 @@
 #include <pthread.h>
 #include <math.h>
 #include <unistd.h>
+#include <string.h>
 
 int* Array;
 int* Arr2;
 int* Arr3;
-int* tmpA;
-int subarr ;
+int* ans;
+int subarr;
+
+int* Arr;
 
 long size;
 int offset;
@@ -28,38 +31,53 @@ void merge( int left, int mid, int right);
 void sort( int left, int right);
 
 
-int main(int argc, char *argv[]) {
-     size = 30000000;
-     num_threads = 2;
 
-	Array = (int *)malloc(size * sizeof(int));
+
+void merge2( int left, int mid, int right);
+void sort2(int left, int right);
+
+int main(int argc, char *argv[]) {
+     size = 400000150;
+     num_threads = 2;
+int y =1;
+int r;
+	Array = (int *)malloc((num_threads+size) * sizeof(int));
 	Arr2 = (int *)malloc(size * sizeof(int));
 	Arr3 = (int *)malloc(size * sizeof(int));
+	Arr = (int *)malloc(size * sizeof(int));
+	ans = (int *)malloc(size * sizeof(int));
 
 
-
-	
-	if(argc<=1 || argc>3){
-		printf("please enter the size of the array follow by the number of threads\n");
+// ./bubble 2000 4 -s
+	if(argc<=1 || argc>4){
+		printf("format:run,size of array, number of threads,optional -s flag for sequential sort\n");
 		return 0;
 	}
 	size = atoi(argv[1]);
 	 num_threads = atoi(argv[2]);
-	
 
-	subarr = size/num_threads;
 
-	struct timeval stop, start, elapse;
 
-	offset = size % num_threads;
 
+	struct timeval stop, start;
+
+	r = size % num_threads;
+	offset = num_threads - r;
+	//printf("%d %d\n",r, offset);
 
 	int i;
 	for(i=0; i < size; i++){
 		Array[i] = rand() % 100;
 	}
 
+	i = 0;
+	for(i=0;i<size;i++){
+		Arr[i] = Array[i];
+
+	}
+
 //to compare
+/*
 	i = 0;
 	for(i=0;i<size;i++){
 		Arr3[i] = Array[i];
@@ -67,13 +85,31 @@ int main(int argc, char *argv[]) {
 	}
 
 
+*/
+	i=0;
+	int x = size;
+	for(i=0;i<offset;i++){
+		Array[x+i] = 101;
+	}
+
+	if( argc == 4){
+		//print(Arr, size); //see unsorted array
+		if ( ! strcmp(argv[3], "-s")) {
+			gettimeofday(&start, NULL);
+			sort2(0, size - 1);
+		gettimeofday(&stop, NULL);
+
+		//print(Arr, size); //see seq sorted array
 
 
+			printf("sequential time: %lu :secs %lu :ms\n",stop.tv_sec - start.tv_sec, (long) (stop.tv_usec - start.tv_usec)/1000);
 
-
-
-
-
+		}
+	}
+	free(Arr);
+	x = size;
+	size = size + offset;
+	subarr = size/num_threads;
 
 
 	   tids = malloc(num_threads *sizeof(pthread_t));
@@ -96,8 +132,10 @@ int main(int argc, char *argv[]) {
 	}
 
 
-    for (i = 0; i < num_threads; i++)
-        pthread_join(tids[i], NULL);
+    for (i = 0; i < num_threads; i++){
+    	 pthread_join(tids[i], NULL);
+    }
+
 
     for (i = 1; i <= num_threads-1; i++) {
 		int middle = i * subarr;
@@ -113,29 +151,24 @@ int main(int argc, char *argv[]) {
 
 
 
-/*sort1(Arr3,size);
-	for (i = 0; i < size; i++)
-	{
-		if (Arr3[i] != Array[i])
-		{
-			//printf("%d  error\n", i);
-		}
-	}
 
-
-*/
 
 
 
 			   printf("Parellel time: %lu :secs %lu :ms\n",stop.tv_sec - start.tv_sec, (long) (stop.tv_usec - start.tv_usec)/1000);
+				i = 0;
+				for(i=0;i<x;i++){
+					ans[i] = Array[i];
 
-				print(Array,size);
+				}
+
+		//	print(ans,x); // to see parallel sorted arr
 
 
     return 0;
 }
 
-
+//initially used bubblesort to compare, useless class
 void sort1(int arr[], int size)
 {
    int i, j, tmp;
@@ -152,7 +185,7 @@ void sort1(int arr[], int size)
        }
 
 }
-
+// starts recursive sort
 void *sort_pthread(void *param) {
     int *left = param;
     int right =  *left + subarr - 1;
@@ -160,7 +193,7 @@ void *sort_pthread(void *param) {
 
 }
 
-
+// split array into chunks
 void sort(int left,int right) {
     int mid;
     if (right > left) {
@@ -176,7 +209,7 @@ void sort(int left,int right) {
     }
 }
 
-
+//merge together
 void merge( int left, int mid, int right) {
     int i, left_end, count, tmp;
     left_end = mid - 1;
@@ -190,11 +223,12 @@ void merge( int left, int mid, int right) {
             Arr2[tmp] = Array[left];
 			tmp++;
             left++;
-        } else {
-            Arr2[tmp] = Array[mid];
-			tmp++;
-            mid++;
+            continue;
         }
+        Arr2[tmp] = Array[mid];
+        tmp++;
+        mid++;
+
     }
 
 //leftovers
@@ -220,12 +254,81 @@ void merge( int left, int mid, int right) {
         w++;
     }
 }
-void print( int arr[],int size ){
+
+void print( int arr[],int x ){
     int i;
-    for (i=0; i < size; i++){
-    	printf("%d ", Array[i]);
+    for (i=0; i < x; i++){
+    	printf("%d ", arr[i]);
     }
     	printf("\n");
 
 }
+
+//everything below is reimplimented fro seq ver
+void merge2( int left, int mid, int right){
+	int i=0;
+	int j=0;
+	int loc = left;
+	int start = mid - left + 1;
+	int end = right - mid;
+
+	int* tmparr=(int *)malloc((start+1)* sizeof(int));
+	int* tmparr2=(int *)malloc((end+1)* sizeof(int));
+	//int tmparr[start], tmparr2[end];
+
+	for (i = 0; i < start; i++){
+		tmparr[i] = Arr[left + i];
+	}
+
+	for (j = 0; j < end; j++){
+		tmparr2[j] = Arr[mid + 1+ j];
+	}
+
+	 i=0;
+	 j=0;
+
+	while (i < start && j < end){
+		if (tmparr[i] <= tmparr2[j]){
+			Arr[loc] = tmparr[i];
+			i++;
+			loc++;
+			continue;
+
+
+		}
+			Arr[loc] = tmparr2[j];
+			j++;
+
+			loc++;
+
+
+
+	}
+
+
+	while (i < start){
+		Arr[loc] = tmparr[i];
+		i++;
+		loc++;
+	}
+
+	while (j < end){
+		Arr[loc] = tmparr2[j];
+		j++;
+		loc++;
+	}
+}
+
+
+void sort2(int left, int right){
+	if (left < right){
+		int mid = left+(right-left)/2;
+		sort2( left, mid);
+		sort2( mid+1, right);
+
+		merge2( left, mid, right);
+	}
+}
+
+
 
