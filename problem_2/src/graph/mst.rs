@@ -20,14 +20,20 @@ pub fn compute_sequential_mst(graph_nodes_rc: Rc<Vec<Node>>) -> Vec<Node> {
         node_id: 0,
         neighbors: Vec::new(),
     };
-    min_span_tree.push(placeholder.clone());
+    min_span_tree.resize(numb_vertices, placeholder);
+    min_span_tree[0]
+        .neighbors
+        .push(NodeEdge { node: 0, edge: 0 });
     min_heap.push((0, 0));
     weights.push(0);
     for i in 1..numb_vertices {
         placeholder.node_id = i as u32;
-        min_span_tree.push(placeholder.clone());
         min_heap.push((i as u32, std::u32::MAX));
         weights.push(std::u32::MAX);
+        min_span_tree[i].neighbors.push(NodeEdge {
+            node: i as u32,
+            edge: 0,
+        });
     }
     /*Main loop*/
     while !min_heap.is_empty() {
@@ -51,6 +57,14 @@ pub fn compute_sequential_mst(graph_nodes_rc: Rc<Vec<Node>>) -> Vec<Node> {
     min_span_tree
 }
 
+struct ThreadArgPtrs {
+    weight_ptr: *mut u32,
+    tree_ptr: *mut Node,
+    heap_ptr: *const MinHeap,
+}
+unsafe impl Send for ThreadArgPtrs {}
+unsafe impl Sync for ThreadArgPtrs {}
+
 pub fn compute_parallel_mst(graph_nodes: Arc<Vec<Node>>, thread_count: usize) -> Vec<Node> {
     let numb_vertices = graph_nodes.len();
     let mut min_span_tree: Vec<Node> = Vec::with_capacity(numb_vertices);
@@ -61,14 +75,20 @@ pub fn compute_parallel_mst(graph_nodes: Arc<Vec<Node>>, thread_count: usize) ->
         node_id: 0,
         neighbors: Vec::new(),
     };
-    min_span_tree.push(placeholder.clone());
+    min_span_tree.resize(numb_vertices, placeholder);
+    min_span_tree[0]
+        .neighbors
+        .push(NodeEdge { node: 0, edge: 0 });
     min_heap.push((0, 0));
     weights.push(0);
     for i in 1..numb_vertices {
         placeholder.node_id = i as u32;
-        min_span_tree.push(placeholder.clone());
         min_heap.push((i as u32, std::u32::MAX));
         weights.push(std::u32::MAX);
+        min_span_tree[i].neighbors.push(NodeEdge {
+            node: i as u32,
+            edge: 0,
+        });
     }
     let mut current_node_id: u32 = match min_heap.pop() {
         Some(val) => val,
@@ -76,9 +96,12 @@ pub fn compute_parallel_mst(graph_nodes: Arc<Vec<Node>>, thread_count: usize) ->
     };
     /*Create atomic reference counts to allow multiple variable
     ownerships between threads. Performance hit due to forced compiler opt disabled*/
+    let ptrs_arc = Arc::new(ThreadArgPtrs {
+        weight_ptr: weights.as_mut_ptr(),
+        tree_ptr: min_span_tree.as_mut_ptr(),
+        heap_ptr: &min_heap,
+    });
     let min_heap_arc = Arc::new(RwLock::new(min_heap));
-    let weight_arc = Arc::new(RwLock::new(weights));
-    let mst_arc = Arc::new(RwLock::new(min_span_tree));
     loop {
         let mut curr_thread_count = thread_count;
         let current_node: &Node = &graph_nodes[current_node_id as usize];
@@ -92,8 +115,7 @@ pub fn compute_parallel_mst(graph_nodes: Arc<Vec<Node>>, thread_count: usize) ->
         let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::new();
         for thread_idx in 0..curr_thread_count {
             let thread_heap_arc = Arc::clone(&min_heap_arc);
-            let thread_weight_arc = Arc::clone(&weight_arc);
-            let thread_mst_arc = Arc::clone(&mst_arc);
+            let thread_ptrs_arc = Arc::clone(&ptrs_arc);
             let thread_graph_arc = Arc::clone(&graph_nodes);
             /*Thread creation*/
             let thread_handle = thread::spawn(move || {
@@ -103,30 +125,32 @@ pub fn compute_parallel_mst(graph_nodes: Arc<Vec<Node>>, thread_count: usize) ->
                 if end > current_neighbors.len() {
                     end = current_neighbors.len();
                 }
-                for curr_neighbor in current_neighbors.iter().take(end).skip(start) {
-                    if thread_heap_arc.read().unwrap().contains(curr_neighbor.node)
-                        && thread_weight_arc.read().unwrap()[curr_neighbor.node as usize]
-                            > curr_neighbor.edge
-                    {
+                unsafe {
+                    for curr_neighbor in current_neighbors.iter().take(end).skip(start) {
+                        if (*thread_ptrs_arc.heap_ptr).contains(curr_neighbor.node)
+                            && *thread_ptrs_arc.weight_ptr.add(curr_neighbor.node as usize)
+                                > curr_neighbor.edge
                         {
-                            thread_weight_arc.write().unwrap()[curr_neighbor.node as usize] =
-                                curr_neighbor.edge;
-                        }
-                        {
-                            thread_heap_arc
-                                .write()
-                                .unwrap()
-                                .decrease_key(curr_neighbor.node, curr_neighbor.edge);
-                        }
-                        {
-                            let mut mst_w = thread_mst_arc.write().unwrap();
-                            mst_w[curr_neighbor.node as usize].neighbors.clear();
-                            mst_w[curr_neighbor.node as usize].neighbors.push({
-                                NodeEdge {
-                                    node: current_node_id,
-                                    edge: curr_neighbor.edge,
-                                }
-                            })
+                            {
+                                thread_heap_arc
+                                    .write()
+                                    .unwrap()
+                                    .decrease_key(curr_neighbor.node, curr_neighbor.edge);
+                            }
+                            {
+                                *thread_ptrs_arc.weight_ptr.add(curr_neighbor.node as usize) =
+                                    curr_neighbor.edge;
+                            }
+                            {
+                                let mst_node =
+                                    thread_ptrs_arc.tree_ptr.add(curr_neighbor.node as usize);
+                                (*mst_node).neighbors[0] = {
+                                    NodeEdge {
+                                        node: current_node_id,
+                                        edge: curr_neighbor.edge,
+                                    }
+                                };
+                            }
                         }
                     }
                 }
@@ -144,7 +168,7 @@ pub fn compute_parallel_mst(graph_nodes: Arc<Vec<Node>>, thread_count: usize) ->
     }
     /*Remove Atomic ref count and Mutex wrappers to return the final MST*/
     //Mutex::into_inner(Arc::try_unwrap(mst_arc).unwrap()).unwrap()
-    Arc::try_unwrap(mst_arc).unwrap().into_inner().unwrap()
+    min_span_tree
 }
 
 /*Tests*/
@@ -310,8 +334,6 @@ mod tests {
         let _mst_parallel = compute_parallel_mst(Arc::clone(&arc_graph_nodes), 2);
         let rc_graph_nodes = Rc::new(Arc::try_unwrap(arc_graph_nodes).unwrap());
         let _mst_seq = compute_sequential_mst(rc_graph_nodes);
-        println!("Seq: {:#?}", _mst_seq);
-        println!("Parallel: {:#?}", _mst_parallel);
         assert_eq!(_mst_parallel.len(), _mst_seq.len());
         for i in 0.._mst_parallel.len() {
             assert!(_mst_parallel[i].is_equal(&_mst_seq[i]));

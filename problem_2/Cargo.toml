@@ -8,7 +8,7 @@ authors = ["Khalid Akash <khaldakash@gmail.com>"]
 opt-level = 0
 
 [profile.release]
-opt-level = 0
+opt-level = 3
 
 [dependencies]
 rand = "0.5.5"

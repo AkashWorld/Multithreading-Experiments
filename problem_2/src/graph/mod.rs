@@ -67,7 +67,7 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
     let graph_nodes_arc = Arc::new(RwLock::new(graph_nodes));
     let cond_var = Arc::new((Mutex::new(0), Condvar::new()));
     let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::with_capacity(thread_count);
-    let partition = if graph_size/thread_count > 0 {
+    let partition = if graph_size / thread_count > 0 {
         (graph_size + (thread_count - 1)) / thread_count
     } else {
         thread_count = 1;
@@ -79,7 +79,7 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
         let handle = thread::spawn(move || {
             let mut thread_local_graph: Vec<Node> = Vec::with_capacity(partition);
             for i in 0..partition {
-                if thread_idx*partition + i >= graph_size {
+                if thread_idx * partition + i >= graph_size {
                     break;
                 }
                 let _numb_of_neighbors: u32 = rand::thread_rng().gen_range(1, graph_size as u32);
