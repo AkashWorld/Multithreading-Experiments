@@ -63,18 +63,16 @@ fn profile_parallel_mst(graph_nodes: Arc<Vec<graph::Node>>, thread_count: usize,
 fn run_tests(graph_nodes: Vec<graph::Node>) {
     let graph_nodes_rc = Rc::new(graph_nodes);
     let graph_nodes_rc_clone = Rc::clone(&graph_nodes_rc);
-    let mut timing = profile_sequential_mst(graph_nodes_rc_clone);
+    let timing = profile_sequential_mst(graph_nodes_rc_clone);
     let graph_nodes_arc_0 = Arc::new(Rc::try_unwrap(graph_nodes_rc).unwrap());
-    let graph_nodes_arc_1 = Arc::clone(&graph_nodes_arc_0);
-    timing = profile_parallel_mst(graph_nodes_arc_1, 1, timing);
     let graph_nodes_arc_2 = Arc::clone(&graph_nodes_arc_0);
-    timing = profile_parallel_mst(graph_nodes_arc_2, 2, timing);
+    profile_parallel_mst(graph_nodes_arc_2, 2, timing);
     let graph_nodes_arc_3 = Arc::clone(&graph_nodes_arc_0);
-    timing = profile_parallel_mst(graph_nodes_arc_3, 4, timing);
+    profile_parallel_mst(graph_nodes_arc_3, 4, timing);
     let graph_nodes_arc_4 = Arc::clone(&graph_nodes_arc_0);
-    timing = profile_parallel_mst(graph_nodes_arc_4, 8, timing);
+    profile_parallel_mst(graph_nodes_arc_4, 8, timing);
     let graph_nodes_arc_5 = Arc::clone(&graph_nodes_arc_0);
-    timing = profile_parallel_mst(graph_nodes_arc_5, 16, timing);
+    profile_parallel_mst(graph_nodes_arc_5, 16, timing);
 }
 
 fn main() {
