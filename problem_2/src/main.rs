@@ -13,7 +13,7 @@ use colored::*;
 pub mod graph;
 pub mod min_heap;
 
-fn profile_sequential_mst(graph_nodes: Rc<Vec<graph::Node>>, prev_timing: &i64) -> i64 {
+fn profile_sequential_mst(graph_nodes: Rc<Vec<graph::Node>>) -> i64 {
     let cloned_reference_graph_nodes = Rc::clone(&graph_nodes);
     let start = PreciseTime::now();
     let _mst = graph::mst::compute_sequential_mst(cloned_reference_graph_nodes);
@@ -29,7 +29,7 @@ fn profile_sequential_mst(graph_nodes: Rc<Vec<graph::Node>>, prev_timing: &i64) 
         graph_nodes.len(),
         edge_count,
         format!("{}", start.to(end).num_milliseconds()).yellow(),
-        "ms".green()
+        "ms".yellow()
     );
     start.to(end).num_milliseconds()
 }
@@ -63,7 +63,7 @@ fn profile_parallel_mst(graph_nodes: Arc<Vec<graph::Node>>, thread_count: usize,
 fn run_tests(graph_nodes: Vec<graph::Node>) {
     let graph_nodes_rc = Rc::new(graph_nodes);
     let graph_nodes_rc_clone = Rc::clone(&graph_nodes_rc);
-    let mut timing = profile_sequential_mst(graph_nodes_rc_clone, &0);
+    let mut timing = profile_sequential_mst(graph_nodes_rc_clone);
     let graph_nodes_arc_0 = Arc::new(Rc::try_unwrap(graph_nodes_rc).unwrap());
     let graph_nodes_arc_1 = Arc::clone(&graph_nodes_arc_0);
     timing = profile_parallel_mst(graph_nodes_arc_1, 1, timing);
