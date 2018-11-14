@@ -28,7 +28,7 @@ fn profile_sequential_mst(graph_nodes: Rc<Vec<graph::Node>>, prev_timing: &i64) 
         operation_type,
         graph_nodes.len(),
         edge_count,
-        format!("{}", start.to(end).num_milliseconds()).green(),
+        format!("{}", start.to(end).num_milliseconds()).yellow(),
         "ms".green()
     );
     start.to(end).num_milliseconds()
