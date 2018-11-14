@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -g 
+CFLAGS = -Wall -g -std=c++11
 DFLAGS = -lcrypto -pthread
 
 all: brute_force
