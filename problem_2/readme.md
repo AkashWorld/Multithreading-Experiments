@@ -20,7 +20,7 @@ cargo build
 ## Running
 
 The release executable is located at ./target/release/problem_2.  
-The command line arguments give two options for arguments, the first being the thread count to generate the graphs with, and the second being the total number of nodes in the graph to generate (**Warning, this number can vary greatly with the memory residing within the system.**) The graph size will be multiplied by 2 from the starting size of 1000 to the set graph size.
+The command line arguments give two options for arguments, the first being the thread count to generate the graphs with, and the second being the total number of nodes in the graph to generate (**Warning, inappopriately setting this number can cause the benchmarks to end due to memory constraints within the system.**) The graph size will be multiplied by 2 from the starting size of 1000 to the set graph size.
 For example:
 ```
 ./target/release/problem2 8 48000 #Generate a graph with 8 threads, with a maximum of 48000 nodes
@@ -31,7 +31,7 @@ For example:
 ./target/release/problem2 #Generate a graph with 4 threads, with a default size of 32000 nodes in the graph  
 ```
 ```
-./target/release/problem2 8 #Generate a graph with 4 threads, with a default size of 32000 nodes in the graph  
+./target/release/problem2 8 #Generate a graph with 8 threads, with a default size of 32000 nodes in the graph  
 ```
 To quickly build and run debug builds, run the following command, following any of the above listed arguments.  
 ```
