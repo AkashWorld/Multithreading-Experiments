@@ -5,7 +5,6 @@ Author: Khalid Akash, 2018
 */
 extern crate colored;
 extern crate rand;
-extern crate systemstat;
 use self::colored::*;
 use self::rand::Rng;
 use std::collections::HashSet;
@@ -116,7 +115,7 @@ pub fn generate_graph(graph_size: usize, mut thread_count: usize) -> Option<Vec<
     }
     for elem in thread_handles {
         elem.join().unwrap();
-    }    
+    }
     Option::Some(
         Arc::try_unwrap(graph_nodes_arc)
             .unwrap()

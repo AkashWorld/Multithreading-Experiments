@@ -73,41 +73,36 @@ fn run_tests(graph_nodes: Vec<graph::Node>) {
 }
 
 fn main() {
-    println!("{}","This can take some time...".red().bold());
+    println!("{}", "This can take some time...".red().bold());
     let mut thread_count: usize = 4;
     let mut graph_size: usize = 32000;
     let args: Vec<String> = env::args().collect();
     if args.len() == 2 {
         let arg_1 = &args[1];
         thread_count = match arg_1.parse::<usize>() {
-            Ok(var) => {
-                var
-            }
-            Err(_) => {
-                thread_count
-            }
+            Ok(var) => var,
+            Err(_) => thread_count,
         };
     } else if args.len() == 3 {
         let arg_1 = &args[1];
         thread_count = match arg_1.parse::<usize>() {
-            Ok(var) => {
-                var
-            }
-            Err(_) => {
-                thread_count
-            }
+            Ok(var) => var,
+            Err(_) => thread_count,
         };
         let arg_2 = &args[2];
         graph_size = match arg_2.parse::<usize>() {
-            Ok(var) => {
-                var
-            }
-            Err(_) => {
-                graph_size
-            }
+            Ok(var) => var,
+            Err(_) => graph_size,
         }
     }
-    println!("{}",format!("Setting maximum thread count to {} and graph size to {}", thread_count, graph_size).blue().bold());
+    println!(
+        "{}",
+        format!(
+            "Setting maximum thread count to {} and graph size to {}",
+            thread_count, graph_size
+        ).blue()
+        .bold()
+    );
     let mut curr_graph_size: usize = 1000;
     loop {
         run_tests(graph::generate_graph(curr_graph_size, thread_count).unwrap());
