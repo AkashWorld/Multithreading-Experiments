@@ -1,6 +1,6 @@
-# Parallel Password Cracker
+# Parallel Sort
 
-A multi-threaded implementation of a password cracker that can find the password associated with an MD5 hash.
+A multi-threaded implementation of a several sorting algorithms, consisting of bubblesort, mergesort, and bucketsort.
 
 ### Prerequisites
 
