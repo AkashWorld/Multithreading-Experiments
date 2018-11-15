@@ -6,22 +6,22 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
-#include <chrono>  
+#include <chrono>
 #include <iostream>
 #include <openssl/md5.h>
 #include <sstream>
 #include <pthread.h>
 
-using namespace std; 
+using namespace std;
 
-void gen_strs(const char*,string,const int, const size_t);
+void gen_strs(const char *, string, const int, const size_t);
 
 void gen_arr(char *);
 
-void md5_to_str(unsigned char*);
+void md5_to_str(unsigned char *);
 
-void str_to_md5(const char*);
+void str_to_md5(const char *);
 
-void * thread_worker(void *);
+void *thread_worker(void *);
 
 #endif
