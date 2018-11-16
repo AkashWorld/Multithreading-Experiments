@@ -165,7 +165,7 @@ int main()
     printf("unsorted:\n");
     print_vec(unsorted);
     printf("sequential sorted:\n");
-    //print_vec(bucketsort(unsorted, min, max));
+    print_vec(bucketsort(unsorted, min, max));
     printf("parell sorted:\n");
     print_vec(bucketsort_threaded(unsorted, min, max));
 }
