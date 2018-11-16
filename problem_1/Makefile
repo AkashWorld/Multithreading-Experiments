@@ -1,11 +1,12 @@
 all: bubblesort mergesort
 
 bubblesort: bubble.c
-	gcc -pthread -o bubblesort bubble.c -lm
+	$(CC) -o bubblesort bubble.c -lm -pthread 
 
 mergesort: merge.c
-	gcc  -pthread -o mergesort merge.c -lm
-
-
+	$(CC) -o mergesort merge.c -lm -pthread 
+.
+bucketsort: bucketsort.cpp
+	$(CXX) -std=c++11 bucketsort.cpp -o bucketsort -pthread
 clean:
-	rm bubblesort mergesort 
+	rm bubblesort mergesort bucketsort
