@@ -1,7 +1,0 @@
-[package]
-name = "quicksort"
-version = "0.1.0"
-authors = ["Ryan Morey <ryan.t.morey@gmail.com>"]
-
-[dependencies]
-rand = "0.5"
