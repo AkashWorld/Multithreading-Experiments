@@ -10,8 +10,7 @@
 #define N_THREADS 4
 using namespace std;
 
-struct thread_task
-{
+struct thread_task {
     vector<int>& vec;
     int min;
     int max;
@@ -20,9 +19,8 @@ struct thread_task
 };
 
 void print_vec(const vector<int>& vec){
-    for (auto x: vec){
+    for (auto x: vec)
         cout << ' ' << x;
-    }
     cout << '\n';
 }
 
@@ -108,12 +106,14 @@ vector<int> bucketsort_threaded(vector<int> &unsorted, int min, int max) {
     pthread_t threads[N_THREADS];
     int start = 0;
     for (int i=0; i<N_THREADS-1; i++) {
+
         thread_task *task = (thread_task*)malloc(sizeof(thread_task));
         task->min = new_min;
         task->max = new_max;
         task->vec = buckets[i];
         task->start = start;
         task->sorted = sorted;
+
         cout << "launching thread";
         cout << i;
         cout << '\n';
