@@ -1,2 +1,2 @@
 all:
-	g++ bucketsort.cpp -o bin/bucketsort
+	g++ src/bucketsort.cpp -g -o bin/bucketsort -lpthread
