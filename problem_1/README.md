@@ -4,7 +4,7 @@ A multi-threaded implementation of a several sorting algorithms, consisting of b
 
 ### Prerequisites
 
-A c compiler, such as gcc or clang.
+A C, and C++ compiler, such as gcc, g++, clang, and/or clang++.
 
 ### Installing
 
@@ -21,6 +21,7 @@ For example:
 ```
 ./mergesort 16000 8
 ./bubblesort 16000 8
+./bucketsort
 ```
 
 ## Authors
