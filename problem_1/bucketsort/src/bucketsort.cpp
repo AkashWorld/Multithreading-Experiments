@@ -42,8 +42,8 @@ vector<int> insertion_sort(const vector<int> &unsorted){
     return sorted;
 }
 
-vector<int> bucketsort(vector<int> &unsorted, int min, int max) {
-    if (unsorted.size() < THRESHOLD)
+vector<int> bucketsort(const vector<int> &unsorted, int min, int max) {
+    if (unsorted.size() < THRESHOLD || (max - min) < 2)
         return insertion_sort(unsorted);
 
     vector<int> buckets[N_BUCKETS];
@@ -76,7 +76,6 @@ vector<int> bucketsort(vector<int> &unsorted, int min, int max) {
 }
 
 void *bucketsort_pthread(void *task){
-    cout << "inside thread";
     thread_task* my_task = (thread_task*)task;
     vector<int> sorted_bucket = bucketsort(*(my_task->vec), my_task->min, my_task->max);
     int i = my_task->start;
@@ -100,6 +99,7 @@ vector<int> bucketsort_threaded(vector<int> &unsorted, int min, int max) {
             this_max += bucket_size;
         }
     }
+
     int new_min = min;
     int new_max = min + bucket_size;
     int sorted[N];
@@ -107,28 +107,26 @@ vector<int> bucketsort_threaded(vector<int> &unsorted, int min, int max) {
     int start = 0;
     thread_task tasks[N_THREADS];
     for (int i=0; i<N_THREADS-1; i++) {
+        int size = buckets[i].size();
         tasks[i].min = new_min;
         tasks[i].max = new_max;
         tasks[i].start = start;
         tasks[i].sorted = sorted;
         tasks[i].vec = &(buckets[i]);
 
-        cout << "launching thread";
-        cout << i;
-        cout << '\n';
         pthread_create(&threads[i], NULL, bucketsort_pthread, (void*)&tasks[i]);
 
         new_min = new_max;
         new_max += bucket_size;
-        start += buckets[i].size();
+        start += size;
     }
-    thread_task *task = (thread_task*)malloc(sizeof(thread_task));
+    // thread_task *task = (thread_task*)malloc(sizeof(thread_task));
     tasks[N_THREADS-1].min = new_min;
     tasks[N_THREADS-1].max = max;
     tasks[N_THREADS-1].vec = &(buckets[N_THREADS-1]);
     tasks[N_THREADS-1].start = start;
     tasks[N_THREADS-1].sorted = sorted;
-    pthread_create(&threads[N_THREADS], NULL, bucketsort_pthread, (void*)&tasks[N_THREADS]);
+    pthread_create(&threads[N_THREADS-1], NULL, bucketsort_pthread, (void*)&tasks[N_THREADS-1]);
     for (int i=0;i<N_THREADS;i++)
         pthread_join(threads[i], NULL);
     vector<int> sorted_vec;
@@ -147,7 +145,7 @@ int main(){
     printf("unsorted:\n");
     print_vec(unsorted);
     printf("sequential sorted:\n");
-    //print_vec(bucketsort(unsorted, min, max));
+    print_vec(bucketsort(unsorted, min, max));
     printf("parell sorted:\n");
     print_vec(bucketsort_threaded(unsorted, min, max));
 }
