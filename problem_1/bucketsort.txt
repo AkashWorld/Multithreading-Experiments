@@ -1,6 +1,0 @@
-We have implemented bucketsort both sequentially and in parallel using pthreads, but we were unable to entirely fix the parallel implementation. We used C++ std::vectors to implement the buckets, because the number of elements to go into each bucket is unknown beforehand. This proved difficultwhen we introduced pthreads, as the behavior of C++ container objects (such as std::vector) does not play nicely with being passed between threads.
-
-
- The program allows for a configurable number of buckets. The program uses bucket sort recursively, and sorts small enough buckets (say, less than 10 elements) using insertion sort. This threshold could be made higher, and a better inner sorting algorithm used to improve performance. Our implementation is able to sort arrays of size upwards of 100,000 in a few ms, which was a pleasingly effecient result. 
-
-In principle, bucketsort should be able to parallelize nicely, as it is a divide-and conquer algorithm. We regret that we were unable to fix all bugs in our implementation, as the preliminary results we saw were very promising. 
