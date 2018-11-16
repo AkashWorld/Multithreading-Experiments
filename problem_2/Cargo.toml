@@ -1,0 +1,16 @@
+[package]
+name = "problem_2"
+version = "0.1.0"
+authors = ["Khalid Akash <khaldakash@gmail.com>"]
+
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
+[dependencies]
+rand = "0.5.5"
+time = "0.1.40"
+colored = "1.6"
