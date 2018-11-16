@@ -15,7 +15,7 @@ struct thread_task
     vector<int>& vec;
     int min;
     int max;
-    vector<int>& vec;
+    vector<int>& result;
 };
 
 void print_vec(const vector<int>& vec){
