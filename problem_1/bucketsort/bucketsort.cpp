@@ -3,9 +3,11 @@
 #include <vector>
 #include <ctime>
 #include <cassert>
+#include <pthread.h>
 #define N 100
 #define N_BUCKETS 8
 #define THRESHOLD 10
+#define N_THREADS 4
 using namespace std;
 
 void print_vec(const vector<int>& vec){
@@ -15,7 +17,7 @@ void print_vec(const vector<int>& vec){
     cout << '\n';
 }
 
-vector<int> insertion_sort(vector<int> unsorted){
+vector<int> insertion_sort(const vector<int> &unsorted){
     vector<int> sorted;
     bool flag;
     for (int n : unsorted){
@@ -34,7 +36,7 @@ vector<int> insertion_sort(vector<int> unsorted){
     return sorted;
 }
 
-vector<int> bucketsort(vector<int> unsorted, int min, int max) {
+vector<int> bucketsort(const vector<int> &unsorted, int min, int max) {
     // insertion sort if small enough
     if (unsorted.size() < THRESHOLD){
         return insertion_sort(unsorted);
@@ -70,6 +72,7 @@ vector<int> bucketsort(vector<int> unsorted, int min, int max) {
     sorted.insert(sorted.end(), sorted_bucket.begin(), sorted_bucket.end());
     return sorted;
 }
+
 
 int main(){
     int min = 0;
